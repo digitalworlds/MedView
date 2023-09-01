@@ -21,9 +21,6 @@ If you are using python, you can start a web server by typing in your command pr
 It will start the server in port 8000.
 `http://127.0.0.1:8000/run.html`  (shows a blank window)
 
-To run a specific JS app type `?app=filename.js` at the end of the URL. 
-For example: `http://127.0.0.1:5500/run.html?app=main.js`
-
 The live site is available here:
 https://digitalworlds.github.io/MedView/
 

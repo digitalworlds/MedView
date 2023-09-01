@@ -3,8 +3,14 @@ preload(libs['GUI']).before(function(args){
 		args.app.showLoading();//Here we show the loading animation.
 	});
 
+preload("some_class.js");
+
 var main=function(args){
 	
+	let a=new A(10);
+	console.log(a.getNumber());
+
+
 	args.app.clearContents();//clears the loading animation
 
 	var wind=args.app.getWindow();//gets the window object, which has many parameters, methods, and listeners
@@ -16,7 +22,7 @@ var main=function(args){
 	//We create a GUI menu bar with one menu item:
 	var menulayout=new MenuLayout();
 	menulayout.getMenuBar().append(new MenuItem('Help')).whenClicked().then((item)=>{
-		area.innerHTML="Help clicked!";
+		area.innerHTML="I clicked Help!";
 	});
 
 	//You can append GUI elements to the window like this:

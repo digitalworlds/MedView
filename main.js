@@ -4,6 +4,7 @@ preload(libs['GUI']).before(function(args){
 	});
 
 preload("some_class.js");
+preload("app:9mkazv7tifp94mda@research.dwi.ufl.edu/op.n");//SlidingTabbedLayout class
 
 var main=function(args){
 	
@@ -24,7 +25,24 @@ var main=function(args){
 
 	//We create a GUI menu bar with one menu item:
 	var menulayout=new MenuLayout();
-	menulayout.getMenuBar().append(new MenuItem('Help')).whenClicked().then((item)=>{
+	let file_menu=menulayout.getMenuBar().append(new MenuItem('File')).getSubMenu();
+	
+	file_menu.append(new MenuItem("Item 1")).whenClicked().then((item)=>{
+		item.collapseMenu();
+		//area.innerHTML="I clicked Help!";
+	});
+
+	let menu2=menulayout.getMenuBar().append(new MenuItem('Menu 2')).getSubMenu();
+	
+	menu2.append(new MenuItem("Item 1")).whenClicked().then((item)=>{
+		item.collapseMenu();
+		//area.innerHTML="I clicked Help!";
+	});
+
+	let menu3=menulayout.getMenuBar().append(new MenuItem('Menu 3')).getSubMenu();
+	
+	menu3.append(new MenuItem("Item 1")).whenClicked().then((item)=>{
+		item.collapseMenu();
 		//area.innerHTML="I clicked Help!";
 	});
 
@@ -40,15 +58,35 @@ var main=function(args){
 
 	let toolbar_layout=new HorizontalLayout();
 	toolbar_split.getFirstContainer().append(toolbar_layout);
-	toolbar_layout.append(new Button("Test"));
 
 
-	let left_split=new SplitLayout({orientation:'horizontal',sticky:'first'});
+	var an_icon=new GUIIcon('https://research.dwi.ufl.edu/op.n/img/logo.png');
+
+	let toolbar_style={
+		applyStyle:function(button){
+			button.div.style.width="auto";
+		}
+	}
+
+	toolbar_layout.append(new Button("")).setIcon(an_icon).appendCustomStyle(toolbar_style);
+	toolbar_layout.append(new Button("")).setIcon(an_icon).appendCustomStyle(toolbar_style);
+	toolbar_layout.append(new Button("")).setIcon(an_icon).appendCustomStyle(toolbar_style);
+	toolbar_layout.append(new Button("")).setIcon(an_icon).appendCustomStyle(toolbar_style);
+	toolbar_layout.append(new Button("")).setIcon(an_icon).appendCustomStyle(toolbar_style);
+	toolbar_layout.append(new Button("")).setIcon(an_icon).appendCustomStyle(toolbar_style);
+
+
+	/*let left_split=new SplitLayout({orientation:'horizontal',sticky:'first'});
 	left_split.setStickySize('auto','hidden');
-	toolbar_split.getSecondContainer().append(left_split);
+	toolbar_split.getSecondContainer().append(left_split);*/
 
-	let left_panel=left_split.getFirstContainer().append(new VerticalLayout());
+	
 
-	left_panel.append(new Button("test"));
+	let left_panel=new SlidingTabbedLayout({side:'left'});
+	left_panel.newTab('',new VerticalLayout()).setIcon(an_icon);
+	left_panel.newTab('',new VerticalLayout()).setIcon(an_icon);
+	left_panel.newTab('',new VerticalLayout()).setIcon(an_icon);
+
+	toolbar_split.getSecondContainer().append(left_panel);
 
 }

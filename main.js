@@ -42,7 +42,7 @@ var main=function(args){
 		fileSelector.whenSelected().then((fileSelector,e)=>{
 			fileSelector.createIndex(e);
 		});
-	});;
+	});
 	importMenu.append(new MenuItem("DICOM CD")).setIcon(importDICOMCDIcon).whenClicked().then((item)=>{
 		item.collapseMenu();
 	});

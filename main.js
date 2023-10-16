@@ -12,17 +12,34 @@ var main=function(args){
 	var wind=args.app.getWindow();
 
 	var menulayout=new MenuLayout();
-	let fileButton=menulayout.getMenuBar().append(new MenuItem('File')).getSubMenu();
 
-	fileButton.append(new MenuItem("Open")).whenClicked().then((item)=>{
+	let importDICOMIcon=new GUIIcon("data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAADwAAAA8CAYAAAA6/NlyAAAACXBIWXMAAAsTAAALEwEAmpwYAAABSElEQVR4nO3awUrDQBSF4R/ax2jWvoru3HXTt9NFjIXsfKB2q2K7rXBESKWUUaTMHa8z98DZZvKRkMxMApFIJBKpLx2wBvaAMnYL3OIQ+5IZetoDsMRR1oZYl+h9AbArtAr2HVi1BJYHtFpDqzW0WkOrNbRaQ8tJD6WmoXLUTWtg/UfwCCymPtUO7oH5ybEXNYP7M+xx6VkluE9g59PtXR14SGBnwP2Fx3MNHjJjXYMHA6xb8GCEdQkeE9iS57MFbiwHOO/nu9Uy5lNQBRjXt/QGuLYcINXHbx5adzU+tGSMdguWEdo1WAZo92C1tnjQD+iq18NKoKtdDyuxxdO1sMWjDA1w7shZzSNnDXDuyFnNI2cNcO7IWc0jZ63mxzT9om8lwKMD6LEPJcBXwKsD7HOBLeCvdNPXhN0fQHfTlS2GjUQikQiF8gHwGt0CbidqpwAAAABJRU5ErkJggg==");
+	let exportDICOMIcon=new GUIIcon("data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAADwAAAA8CAYAAAA6/NlyAAAACXBIWXMAAAsTAAALEwEAmpwYAAABVElEQVR4nO3awUoCURiG4bfrqNZdThFJi7rBQmgTXU4LpSCySLcTfBFMJOGUzvnPzH86/wsfuBD00cEZRYiiKIrK7RCYAitAhpsDJzjEvhhD19cA5zhqmhHrEr0aAOwKrQH3DlzWBJYHtGpDqza0akOrNrRqQ8vJmqEuQ+Vos9rACvB3E2ABPKQe+nK2Te0Bz1bX5XK2rp5+3K83Ws7W1WmLTEbL2X7rbAN653N4SWATtJyN3Gg5G7nRMt4tsL/DE7d+Ps1f52lr8EECFsOfh6sCz3I/wPruEtHFHdJK3LZNOj60LnK/omOAe2MpEJyEpTBwMpaCwMe1fXmYW2ApCPxogaWwQ/rzguK+vd07OVv25GwBtk7Olj05W4Ctk7NlT84WYOvkbP/mj2naYm9DgG8cQL92NQT4CHh1gF0Y/OK50z9qr4HlCNBl+84Oho2iKIoYuQ+eYr0rZQX35QAAAABJRU5ErkJggg==");
+	let importDICOMCDIcon=new GUIIcon("data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABgAAAAYCAYAAADgdz34AAAACXBIWXMAAAsTAAALEwEAmpwYAAABKUlEQVR4nN2UTWrCUBSFPwRdRLqFrqXaIllK1aFQaO022rqQSrdgrdUFBDKJ7cSJlsAJhPT9Dz1wyePl3nOS+weXjgGQA0tgA/zKNrrL5ZOEO2APnD22A25jiHvAcwDxuWMLxXrRkB+BMkHEm5aGfAhcA0WkyMhGPmjlvBQ5elYRAt9AHwPyjmMh8oeEeoxNAkuDY9VK2T2QySa6swm8mgS+HAETg//U4V/PyT8cHAGZfD6Alc6Zw/+QKrAC3nW+ihVwpWhq8J/FpujNEXCUSKYvn7WKbGrhl5A2DbG5ZRjHtkHbRZBXnWFs1srWNmhoK8b8QSHyoVJ2Am7wYBEpUrbq8UgAegkiJ+ApdF03GGlx+ci3SlES+uqIerd8Aj+ytVqxfmct6GXgD/2TErgUTAsLAAAAAElFTkSuQmCC");
+	let importImageIcon=new GUIIcon("data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAEAAAABACAYAAACqaXHeAAAACXBIWXMAAAsTAAALEwEAmpwYAAADjElEQVR4nO1aPWgUQRQexF8Qfw4uO9+bvTs8osEoIp5aCILYpLISC7GyURGsYkzAwvRaqRjsLFQwRVJYaRIFMdYWahSCqIhFQPzJiYomJ4/swXDe5Wb39jaTu/lgmr33Zt9+7817M29OCAcHBwcHBwcHBwcHBhGVWnmIeiALjHQEkIuAklsC5HJAySVBsrgKAPgN4EImkyEeAPr5WTsR0F+py8/ahoBsNotK3XQ6LduGgEwmQ5W6vu+rdl8CA00y/DYR3bUxCfYnkATf5vP5jblcbhOAD9YQQMmMP0R0QIuwg0T0t50IuFRlmV1pFwKeCiFWVtrX2dm5BsDzliYAwFfP87bUstHzvB0AfrYyAScM7OxtGQIAfAIwDOBUR0dHXphhBYCJViDgjogI3ngB+LxsCQDw0ff9lGgAUsqjNhIwo5Q6RkRHOLxryMwppQ438vGaze+sIQDAsJQyXZ4vm81uJqKbVeQui5gA4JYNBMyw16vNqZQ6VCH7IpfLrY2LACI6uaQEoMLrlQDwWJP9pZTaJWIE7xmWioCZWl5fxPu9ogno7u5e7fv+OqWU7/v+fgDnANwjomJTCEAdr9fw/gTXb5EgUqnUBiI6w6fKOAl4aWoAgMHg478QUabRD9Ls7AqO4ONENBV4mscUPwvac11lec45RHTRZOKSgfcHwxjL8gCOixggpdwH4FGISJ2QUu41fgEZTMqHEZEwCoXCKgA3iGg+QqKeB3Cd56j7Ioox/OMC7xb1XBJ1cOTwvmTRl1GEJkUCnjcOeYPxhCtGZAK8hMM/CPtSzONaZAKo+eM9d33KCc9wzc9q9hcNc0LBSgKklKc17xuFPoBpTWfaUGfMRgJ+pNPp9YH3t4fsH5YJmAyh12UVAbx1jXjPOKLZPxJCr88qAojorEbAeAjihjS9oRDve2gVAXyI0T7kTQ25Iq/zINRHuUoA6NH0eoLKwb9NBjmhamIE8NoqAvh2WbNjtpqMiIh61cMKAvQmCRF9T4CAb6aCiYxy/V/SJWALuE4nkAQfCFvRQBkcDaF3XtgKpdTWEBEwWdYD8CwEAduEzTC9+op1K2wTiGg3X6AYfFAxtsOQbeBOThMqzlWxXFBYaIiEvgWO3BCxEdzGiqMrxETWbYnZHAncyYnYFJ0Lwv6/v9wsO3ietxPA/RBeHwOwR7Qa1MI+oY+PtMHFCB+eeLziHR7/xjL1JvoHOJKDQ1m2+68AAAAASUVORK5CYII=");
+
+	let fileButton=menulayout.getMenuBar().append(new MenuItem('File')).getSubMenu();
+	let openMenu=fileButton.append(new MenuItem("Open")).getSubMenu();
+	openMenu.append(new MenuItem("DICOM")).setIcon(importDICOMIcon).whenClicked().then((item)=>{
 		item.collapseMenu();
 	});
-	fileButton.append(new MenuItem("Import")).whenClicked().then((item)=>{
+	openMenu.append(new MenuItem("Image")).setIcon(importImageIcon).whenClicked().then((item)=>{
 		item.collapseMenu();
 	});
-	fileButton.append(new MenuItem("Export")).whenClicked().then((item)=>{
+
+	let importMenu=fileButton.append(new MenuItem("Import")).getSubMenu();
+	importMenu.append(new MenuItem("DICOM")).setIcon(importDICOMIcon).whenClicked().then((item)=>{
+		item.collapseMenu();
+	});;
+	importMenu.append(new MenuItem("DICOM CD")).setIcon(importDICOMCDIcon).whenClicked().then((item)=>{
 		item.collapseMenu();
 	});
+
+	let exportMenu=fileButton.append(new MenuItem("Export")).getSubMenu();
+	exportMenu.append(new MenuItem("DICOM")).setIcon(exportDICOMIcon).whenClicked().then((item)=>{
+		item.collapseMenu();
+	});
+
 	fileButton.append(new MenuItem("Print")).whenClicked().then((item)=>{
 		item.collapseMenu();
 	});
@@ -48,6 +65,13 @@ var main=function(args){
 
 	let helpButton=menulayout.getMenuBar().append(new MenuItem('Help')).getSubMenu();
 
+	helpButton.append(new MenuItem("Keyboard Shortcuts")).whenClicked().then((item)=>{
+		item.collapseMenu();
+	});
+	helpButton.append(new MenuItem("Online Help")).whenClicked().then((item)=>{
+		item.collapseMenu();
+	});
+
 	wind.getContent().append(menulayout);
 
 	let toolbarSplit=new SplitLayout({orientation:'vertical',sticky:'first',editable:false});
@@ -63,7 +87,6 @@ var main=function(args){
 		}
 	}
 
-	let importDICOMIcon=new GUIIcon("data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAADwAAAA8CAYAAAA6/NlyAAAACXBIWXMAAAsTAAALEwEAmpwYAAABSElEQVR4nO3awUrDQBSF4R/ax2jWvoru3HXTt9NFjIXsfKB2q2K7rXBESKWUUaTMHa8z98DZZvKRkMxMApFIJBKpLx2wBvaAMnYL3OIQ+5IZetoDsMRR1oZYl+h9AbArtAr2HVi1BJYHtFpDqzW0WkOrNbRaQ8tJD6WmoXLUTWtg/UfwCCymPtUO7oH5ybEXNYP7M+xx6VkluE9g59PtXR14SGBnwP2Fx3MNHjJjXYMHA6xb8GCEdQkeE9iS57MFbiwHOO/nu9Uy5lNQBRjXt/QGuLYcINXHbx5adzU+tGSMdguWEdo1WAZo92C1tnjQD+iq18NKoKtdDyuxxdO1sMWjDA1w7shZzSNnDXDuyFnNI2cNcO7IWc0jZ63mxzT9om8lwKMD6LEPJcBXwKsD7HOBLeCvdNPXhN0fQHfTlS2GjUQikQiF8gHwGt0CbidqpwAAAABJRU5ErkJggg==");
 	let importDICOMButton=new Button("").setIcon(importDICOMIcon).appendCustomStyle(toolbarStyle);
 	importDICOMButton.setToolTipText("Import DICOM");
 	toolbarLayout.append(importDICOMButton);
@@ -73,7 +96,6 @@ var main=function(args){
 	importCDButton.setToolTipText("Import DICOM CD");
 	toolbarLayout.append(importCDButton);
 
-	let exportDICOMIcon=new GUIIcon("data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAADwAAAA8CAYAAAA6/NlyAAAACXBIWXMAAAsTAAALEwEAmpwYAAABVElEQVR4nO3awUoCURiG4bfrqNZdThFJi7rBQmgTXU4LpSCySLcTfBFMJOGUzvnPzH86/wsfuBD00cEZRYiiKIrK7RCYAitAhpsDJzjEvhhD19cA5zhqmhHrEr0aAOwKrQH3DlzWBJYHtGpDqza0akOrNrRqQ8vJmqEuQ+Vos9rACvB3E2ABPKQe+nK2Te0Bz1bX5XK2rp5+3K83Ws7W1WmLTEbL2X7rbAN653N4SWATtJyN3Gg5G7nRMt4tsL/DE7d+Ps1f52lr8EECFsOfh6sCz3I/wPruEtHFHdJK3LZNOj60LnK/omOAe2MpEJyEpTBwMpaCwMe1fXmYW2ApCPxogaWwQ/rzguK+vd07OVv25GwBtk7Olj05W4Ctk7NlT84WYOvkbP/mj2naYm9DgG8cQL92NQT4CHh1gF0Y/OK50z9qr4HlCNBl+84Oho2iKIoYuQ+eYr0rZQX35QAAAABJRU5ErkJggg==");
 	let exportDICOMButton=new Button("").setIcon(exportDICOMIcon).appendCustomStyle(toolbarStyle);
 	exportDICOMButton.setToolTipText("Export DICOM");
 	toolbarLayout.append(exportDICOMButton);

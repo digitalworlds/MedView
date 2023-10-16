@@ -2,8 +2,7 @@ preload(libs['GUI']).before(function(args){
 		args.app.showLoading();
 	});
 
-preload("some_class.js");
-preload("app:9mkazv7tifp94mda@research.dwi.ufl.edu/op.n");//SlidingTabbedLayout class
+preload("DICOMview.js");
 preload("app:9mkazv7tifp94mda@research.dwi.ufl.edu/op.n");//SlidingTabbedLayout class
 
 var main=function(args){
@@ -49,7 +48,6 @@ var main=function(args){
 	fileButton.append(new MenuItem("Exit")).whenClicked().then((item)=>{
 		item.collapseMenu();
 	});
-
 
 	let viewButton=menulayout.getMenuBar().append(new MenuItem('View')).getSubMenu();
 
@@ -100,11 +98,25 @@ var main=function(args){
 	exportDICOMButton.setToolTipText("Export DICOM");
 	toolbarLayout.append(exportDICOMButton);
 
+	let dicomLayout=new SplitLayout({orientation:'horizontal',sticky:'second',editable:false,splitPosition:'0.25'});
+	toolbarSplit.getSecondContainer().append(dicomLayout);
+
 	let explorerIcon=new GUIIcon("data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAEAAAABACAYAAACqaXHeAAAACXBIWXMAAAsTAAALEwEAmpwYAAACcUlEQVR4nO2av2sUQRSAP4LgL1ajoGgEQUsltoogiNZiIRZiY2VhK+SsjCGl/gMWaqMWh/9BCFHQRiwsTu0URFIcihYRDYmMDExgGd7d3GTnNrsz88FrwuzlvW/ezM7uHWQymUwmk8lkMhmDijycqMgjC3ChIo8swIWKPLIAF2rEWAVmgCkTHfO3ZDqgI1zbSUnAYeHaQykJmBKuPZL6ErgzpqSfAs+bJmDVSBj3JvgZ2AtMAl+bJEDVEGvA2VJu54D1lATMCvk9SEXAa2CbkN924H3sAn4Bx4bkeBL4E7OA6yPkeTsmActAF7gJHB8lSWACWIxBwDM2jz54/WizgG/AfqpxpYkC+sBV4JJpb2nMP+ACYfjSJAFd4EDp8/YBD4Vx9wnHkyYI6JtZlzhvje0BOwIKuLHVArrWrNsslcb+BU4RlqNbJaA/ZNYHzb6+f/ugT30fgDlgOsA+4EQFmnVp9hfN/duHnvV/PwHzQGGNe1yngJ5HARuvyX6aVvVlbkAOb4A9pXEHBVljE3DPswg9/hqbY9rxwFRYr+Q+1iHgBPUyrCjfTnCiHKE3pLqZd+Tk0wmVBcxSP7utzbRKJzhRDWv/0BKC7AGqpngL7AosoVUCFPDCOjtUldA6AUp4cKoioZUCFHDLyrMwu7/v3aG1AtaBy0InvPTshNYKUMBv4PS4JaiGx7LwTFGYIl3LYWcMApQ5jU56dMLagC9zRVRLYsl8S+SS8B24SEIUpeXwTlguE+anPfb7hKjQxd0V1rwu/lFpTyhIiHLxG7FAwsXrWCERZgZspK9IBOnYrF/PnyEhCrPmV8zMJ1V8JpNB5D/G0ztpV3cL5wAAAABJRU5ErkJggg==");
-
 	let leftPanel=new SlidingTabbedLayout({side:'left'});
-	let imageExplorer = leftPanel.newTab('',new VerticalLayout()).setIcon(explorerIcon);
+	let imageExplorer=leftPanel.newTab('',new VerticalLayout()).setIcon(explorerIcon);
 	imageExplorer.setToolTipText("Image Explorer");
+	var tabExtended=false;
+	imageExplorer.whenClicked().then(()=>{
+		if(!tabExtended)
+			dicomLayout.setPosition('0.4');
+		else
+			dicomLayout.setPosition('0.25');
 
-	toolbarSplit.getSecondContainer().append(leftPanel);
+		tabExtended=!tabExtended;
+	});
+
+	dicomLayout.getFirstContainer().append(leftPanel);
+
+	var dicomView=new DICOMView();
+	dicomLayout.getSecondContainer().append(dicomView);
 }

@@ -27,8 +27,20 @@ var main=function(args){
 	var menulayout=new MenuLayout();
 	let file_menu=menulayout.getMenuBar().append(new MenuItem('File')).getSubMenu();
 	
-	file_menu.append(new MenuItem("Item 1")).whenClicked().then((item)=>{
+	file_menu.append(new MenuItem("Open")).whenClicked().then((item)=>{
 		item.collapseMenu();
+
+		var fs=new FileSelector();
+		fs.setDirectory(true);
+		fs.setMultiple(true);
+		fs.show();
+		fs.whenSelected().then((fileSelector,e)=>{
+			console.log(fileSelector.files);
+			fs.createIndex(e).then((index)=>{
+				console.log(index);
+			});
+		});
+
 		//area.innerHTML="I clicked Help!";
 	});
 

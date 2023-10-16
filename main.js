@@ -9,7 +9,7 @@ preload("DICOMImage.js");
 preload("dicomParser.min.js");
 preload("DICOMView.js");
 preload("app:9mkazv7tifp94mda@research.dwi.ufl.edu/op.n");//SlidingTabbedLayout class
-
+preload("app:2lqjuzir2rve70ac@research.dwi.ufl.edu/op.n");//FileSelector
 var main=function(args){
 	args.app.clearContents();
 
@@ -33,10 +33,15 @@ var main=function(args){
 
 	let importMenu=fileButton.append(new MenuItem("Import")).getSubMenu();
 	importMenu.append(new MenuItem("DICOM")).setIcon(importDICOMIcon).whenClicked().then((item)=>{
-		new DICOMFile().open(data).then((df=>{
-			var dv=new DICOMView();
-			dv.setDICOMFile(df);
-		}));
+		item.collapseMenu();
+
+		var fileSelector=new FileSelector();
+		fileSelector.setDirectory(true);
+		fileSelector.setMultiple(true);
+		fileSelector.show();
+		fileSelector.whenSelected().then((fileSelector,e)=>{
+			fileSelector.createIndex(e);
+		});
 	});;
 	importMenu.append(new MenuItem("DICOM CD")).setIcon(importDICOMCDIcon).whenClicked().then((item)=>{
 		item.collapseMenu();

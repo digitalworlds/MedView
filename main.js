@@ -4,6 +4,7 @@ preload(libs['GUI']).before(function(args){
 
 preload("some_class.js");
 preload("app:9mkazv7tifp94mda@research.dwi.ufl.edu/op.n");//SlidingTabbedLayout class
+preload("app:9mkazv7tifp94mda@research.dwi.ufl.edu/op.n");//SlidingTabbedLayout class
 
 var main=function(args){
 	args.app.clearContents();

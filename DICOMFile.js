@@ -1,6 +1,6 @@
-preload('utils/dicomParser.min.js');
-preload('utils/DICOMDeidentify.js');
-preload('utils/DICOMImage.js');
+preload('dicomParser.min.js');
+preload('DICOMDeidentify.js');
+preload('DICOMImage.js');
 
 function padString(input, size,options) {
     var s = input+"";

@@ -18,6 +18,65 @@ var main=function(args){
 
 	var menulayout=new MenuLayout();
 
+	let toolbarSplit=new SplitLayout({orientation:'vertical',sticky:'first',editable:false});
+	toolbarSplit.setStickySize('auto','hidden');
+	menulayout.getContainer().append(toolbarSplit);
+
+	let toolbarLayout=new HorizontalLayout();
+	toolbarSplit.getFirstContainer().append(toolbarLayout);
+
+	let toolbarStyle={
+		applyStyle:function(button){
+			button.div.style.width="auto";
+		}
+	}
+
+	let importDICOMButton=new Button("").setIcon(new GUIIcon(ICONS_DICT["importDICOMIcon"])).appendCustomStyle(toolbarStyle);
+	importDICOMButton.setToolTipText("Import DICOM");
+	importDICOMButton.whenClicked().then(()=>{
+		var fileSelector=new FileSelector();
+		fileSelector.setDirectory(true);
+		fileSelector.setMultiple(true);
+		fileSelector.show();
+		fileSelector.whenSelected().then((fileSelector,e)=>{
+			fileSelector.createIndex(e).then((index)=>{
+				new DICOMFile().open(fileSelector.files[1]).then((df) => {
+					dicomView.setDICOMFile(df);//set this dicom file to the viewer
+				});
+			});
+		});
+	});
+	toolbarLayout.append(importDICOMButton);
+
+	let importCDButton=new Button("").setIcon(new GUIIcon(ICONS_DICT["importCDIcon"])).appendCustomStyle(toolbarStyle);
+	importCDButton.setToolTipText("Import DICOM CD");
+	toolbarLayout.append(importCDButton);
+
+	let exportDICOMButton=new Button("").setIcon(new GUIIcon(ICONS_DICT["exportDICOMIcon"])).appendCustomStyle(toolbarStyle);
+	exportDICOMButton.setToolTipText("Export DICOM");
+	toolbarLayout.append(exportDICOMButton);
+
+	let dicomLayout=new SplitLayout({orientation:'horizontal',sticky:'second',editable:false,splitPosition:'0.25'});
+	toolbarSplit.getSecondContainer().append(dicomLayout);
+
+	let leftPanel=new SlidingTabbedLayout({side:'left'});
+	let imageExplorer=leftPanel.newTab('',new VerticalLayout()).setIcon(new GUIIcon(ICONS_DICT["imageExplorerIcon"]));
+	imageExplorer.setToolTipText("Image Explorer");
+	var tabExtended=false;
+	imageExplorer.whenClicked().then(()=>{
+		if(!tabExtended)
+			dicomLayout.setPosition('0.4');
+		else
+			dicomLayout.setPosition('0.25');
+
+		tabExtended=!tabExtended;
+	});
+
+	dicomLayout.getFirstContainer().append(leftPanel);
+
+	var dicomView=new DICOMView();
+	dicomLayout.getSecondContainer().append(dicomView);
+
 	let fileButton=menulayout.getMenuBar().append(new MenuItem('File')).getSubMenu();
 	let openMenu=fileButton.append(new MenuItem("Open")).getSubMenu();
 	openMenu.append(new MenuItem("DICOM")).setIcon(new GUIIcon(ICONS_DICT["importDICOMIcon"])).whenClicked().then((item)=>{
@@ -36,7 +95,11 @@ var main=function(args){
 		fileSelector.setMultiple(true);
 		fileSelector.show();
 		fileSelector.whenSelected().then((fileSelector,e)=>{
-			fileSelector.createIndex(e);
+			fileSelector.createIndex(e).then((index)=>{
+				new DICOMFile().open(fileSelector.files[1]).then((df) => {
+					dicomView.setDICOMFile(df);//set this dicom file to the viewer
+				});
+			});
 		});
 	});
 	importMenu.append(new MenuItem("DICOM CD")).setIcon(new GUIIcon(ICONS_DICT["importDICOMCDIcon"])).whenClicked().then((item)=>{
@@ -81,58 +144,4 @@ var main=function(args){
 
 	wind.getContent().append(menulayout);
 
-	let toolbarSplit=new SplitLayout({orientation:'vertical',sticky:'first',editable:false});
-	toolbarSplit.setStickySize('auto','hidden');
-	menulayout.getContainer().append(toolbarSplit);
-
-	let toolbarLayout=new HorizontalLayout();
-	toolbarSplit.getFirstContainer().append(toolbarLayout);
-
-	let toolbarStyle={
-		applyStyle:function(button){
-			button.div.style.width="auto";
-		}
-	}
-
-	let importDICOMButton=new Button("").setIcon(new GUIIcon(ICONS_DICT["importDICOMIcon"])).appendCustomStyle(toolbarStyle);
-	importDICOMButton.setToolTipText("Import DICOM");
-	importDICOMButton.whenClicked().then(()=>{
-		var fileSelector=new FileSelector();
-		fileSelector.setDirectory(true);
-		fileSelector.setMultiple(true);
-		fileSelector.show();
-		fileSelector.whenSelected().then((fileSelector,e)=>{
-			fileSelector.createIndex(e);
-		});
-	});
-	toolbarLayout.append(importDICOMButton);
-
-	let importCDButton=new Button("").setIcon(new GUIIcon(ICONS_DICT["importCDIcon"])).appendCustomStyle(toolbarStyle);
-	importCDButton.setToolTipText("Import DICOM CD");
-	toolbarLayout.append(importCDButton);
-
-	let exportDICOMButton=new Button("").setIcon(new GUIIcon(ICONS_DICT["exportDICOMIcon"])).appendCustomStyle(toolbarStyle);
-	exportDICOMButton.setToolTipText("Export DICOM");
-	toolbarLayout.append(exportDICOMButton);
-
-	let dicomLayout=new SplitLayout({orientation:'horizontal',sticky:'second',editable:false,splitPosition:'0.25'});
-	toolbarSplit.getSecondContainer().append(dicomLayout);
-
-	let leftPanel=new SlidingTabbedLayout({side:'left'});
-	let imageExplorer=leftPanel.newTab('',new VerticalLayout()).setIcon(new GUIIcon(ICONS_DICT["imageExplorerIcon"]));
-	imageExplorer.setToolTipText("Image Explorer");
-	var tabExtended=false;
-	imageExplorer.whenClicked().then(()=>{
-		if(!tabExtended)
-			dicomLayout.setPosition('0.4');
-		else
-			dicomLayout.setPosition('0.25');
-
-		tabExtended=!tabExtended;
-	});
-
-	dicomLayout.getFirstContainer().append(leftPanel);
-
-	var dicomView=new DICOMView();
-	dicomLayout.getSecondContainer().append(dicomView);
 }

@@ -9,7 +9,7 @@ preload("DICOMImage.js");
 preload("dicomParser.min.js");
 preload("DICOMView.js");
 preload("Icons.js");
-preload("app:9mkazv7tifp94mda@research.dwi.ufl.edu/op.n");//SlidingTabbedLayout class
+preload("app:9mkazv7tifp94mda@research.dwi.ufl.edu/op.n");//SlidingTabbedLayout and TabbedLayout classes
 preload("app:2lqjuzir2rve70ac@research.dwi.ufl.edu/op.n");//FileSelector
 var main=function(args){
 	args.app.clearContents();
@@ -39,9 +39,11 @@ var main=function(args){
 		fileSelector.setMultiple(true);
 		fileSelector.show();
 		fileSelector.whenSelected().then((fileSelector,e)=>{
-			fileSelector.createIndex(e).then((index)=>{
-				new DICOMFile().open(fileSelector.files[1]).then((df) => {
+			fileSelector.createIndex(e).then(()=>{
+				new DICOMFile().open(fileSelector.files[0]).then((df) => {
+					var dicomView=new DICOMView();
 					dicomView.setDICOMFile(df);//set this dicom file to the viewer
+					tabbedLayout.newTab(fileSelector.files[0].name, dicomView);
 				});
 			});
 		});
@@ -73,9 +75,8 @@ var main=function(args){
 	});
 
 	dicomLayout.getFirstContainer().append(leftPanel);
-
-	var dicomView=new DICOMView();
-	dicomLayout.getSecondContainer().append(dicomView);
+	var tabbedLayout=new TabbedLayout();
+	dicomLayout.getSecondContainer().append(tabbedLayout);
 
 	let fileButton=menulayout.getMenuBar().append(new MenuItem('File')).getSubMenu();
 	let openMenu=fileButton.append(new MenuItem("Open")).getSubMenu();
@@ -95,9 +96,11 @@ var main=function(args){
 		fileSelector.setMultiple(true);
 		fileSelector.show();
 		fileSelector.whenSelected().then((fileSelector,e)=>{
-			fileSelector.createIndex(e).then((index)=>{
-				new DICOMFile().open(fileSelector.files[1]).then((df) => {
+			fileSelector.createIndex(e).then(()=>{
+				new DICOMFile().open(fileSelector.files[ 0]).then((df) => {
+					var dicomView=new DICOMView();
 					dicomView.setDICOMFile(df);//set this dicom file to the viewer
+					tabbedLayout.newTab(fileSelector.files[0].name, dicomView);
 				});
 			});
 		});

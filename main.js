@@ -35,18 +35,27 @@ var main=function(args){
 	importDICOMButton.setToolTipText("Import DICOM");
 	importDICOMButton.whenClicked().then(()=>{
 		var fileSelector=new FileSelector();
-		fileSelector.setDirectory(true);
-		fileSelector.setMultiple(true);
+		fileSelector.input.type='file';
+		fileSelector.setMultiple(false);
 		fileSelector.show();
 		fileSelector.whenSelected().then((fileSelector,e)=>{
 			fileSelector.createIndex(e).then(()=>{
 				new DICOMFile().open(fileSelector.files[0]).then((df) => {
 					var dicomView=new DICOMView();
 					dicomView.setDICOMFile(df);//set this dicom file to the viewer
-					tabbedLayout.newTab(fileSelector.files[0].name, dicomView);
+					tabbedLayout.newTab(fileSelector.files[0].name, dicomView).whenClicked().then(()=>{
+						dicomView.imageView.reapplyStyle();
+					});
 				});
 			});
 		});
+
+		if(!tabbedLayout.layout.width)
+			tabbedLayout.layout.width=wind.width*.75;
+
+		tabbedLayout.layout.maxWidth=wind.width*.75;
+		console.log(tabbedLayout.layout.maxWidth);
+		console.log(tabbedLayout.layout.width);
 	});
 	toolbarLayout.append(importDICOMButton);
 
@@ -92,15 +101,17 @@ var main=function(args){
 		item.collapseMenu();
 
 		var fileSelector=new FileSelector();
-		fileSelector.setDirectory(true);
-		fileSelector.setMultiple(true);
+		fileSelector.input.type='file';
+		fileSelector.setMultiple(false);
 		fileSelector.show();
 		fileSelector.whenSelected().then((fileSelector,e)=>{
 			fileSelector.createIndex(e).then(()=>{
-				new DICOMFile().open(fileSelector.files[ 0]).then((df) => {
+				new DICOMFile().open(fileSelector.files[0]).then((df) => {
 					var dicomView=new DICOMView();
 					dicomView.setDICOMFile(df);//set this dicom file to the viewer
-					tabbedLayout.newTab(fileSelector.files[0].name, dicomView);
+					tabbedLayout.newTab(fileSelector.files[0].name, dicomView).whenClicked().then(()=>{
+						dicomView.imageView.reapplyStyle();
+					});
 				});
 			});
 		});

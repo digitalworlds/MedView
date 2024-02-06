@@ -9,8 +9,8 @@ preload("DICOMImage.js");
 preload("dicomParser.min.js");
 preload("DICOMView.js");
 preload("Icons.js");
-preload("app:9mkazv7tifp94mda@research.dwi.ufl.edu/op.n");//SlidingTabbedLayout and TabbedLayout classes
-preload("app:2lqjuzir2rve70ac@research.dwi.ufl.edu/op.n");//FileSelector
+preload(libs['FileSelector','TabbedLayout']);
+
 var main=function(args){
 	args.app.clearContents();
 
@@ -43,25 +43,24 @@ var main=function(args){
 				new DICOMFile().open(fileSelector.files[0]).then((df) => {
 					var dicomView=new DICOMView();
 					dicomView.setDICOMFile(df);//set this dicom file to the viewer
-					tabbedLayout.newTab(fileSelector.files[0].name, dicomView).whenClicked().then(()=>{
+					var tab = tabbedLayout.newTab(fileSelector.files[0].name, dicomView);
+					tab.whenClicked().then(()=>{
 						dicomView.imageView.reapplyStyle();
+					});
+
+					let closeTabButton=new Button("").setIcon(new GUIIcon(ICONS_DICT["closeTabIcon"]));
+
+					tab.append(closeTabButton);
+
+					closeTabButton.whenClicked().then(()=>{
+						tab.removeFromParent();
+						dicomView.imageView.removeFromParent();
 					});
 				});
 			});
 		});
-
-		if(!tabbedLayout.layout.width)
-			tabbedLayout.layout.width=wind.width*.75;
-
-		tabbedLayout.layout.maxWidth=wind.width*.75;
-		console.log(tabbedLayout.layout.maxWidth);
-		console.log(tabbedLayout.layout.width);
 	});
 	toolbarLayout.append(importDICOMButton);
-
-	let importCDButton=new Button("").setIcon(new GUIIcon(ICONS_DICT["importCDIcon"])).appendCustomStyle(toolbarStyle);
-	importCDButton.setToolTipText("Import DICOM CD");
-	toolbarLayout.append(importCDButton);
 
 	let exportDICOMButton=new Button("").setIcon(new GUIIcon(ICONS_DICT["exportDICOMIcon"])).appendCustomStyle(toolbarStyle);
 	exportDICOMButton.setToolTipText("Export DICOM");
@@ -115,9 +114,6 @@ var main=function(args){
 				});
 			});
 		});
-	});
-	importMenu.append(new MenuItem("DICOM CD")).setIcon(new GUIIcon(ICONS_DICT["importDICOMCDIcon"])).whenClicked().then((item)=>{
-		item.collapseMenu();
 	});
 
 	let exportMenu=fileButton.append(new MenuItem("Export")).getSubMenu();

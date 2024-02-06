@@ -108,8 +108,18 @@ var main=function(args){
 				new DICOMFile().open(fileSelector.files[0]).then((df) => {
 					var dicomView=new DICOMView();
 					dicomView.setDICOMFile(df);//set this dicom file to the viewer
-					tabbedLayout.newTab(fileSelector.files[0].name, dicomView).whenClicked().then(()=>{
+					var tab = tabbedLayout.newTab(fileSelector.files[0].name, dicomView);
+					tab.whenClicked().then(()=>{
 						dicomView.imageView.reapplyStyle();
+					});
+
+					let closeTabButton=new Button("").setIcon(new GUIIcon(ICONS_DICT["closeTabIcon"]));
+
+					tab.append(closeTabButton);
+
+					closeTabButton.whenClicked().then(()=>{
+						tab.removeFromParent();
+						dicomView.imageView.removeFromParent();
 					});
 				});
 			});

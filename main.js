@@ -119,7 +119,8 @@ var main=function(args){
 
 					closeTabButton.whenClicked().then(()=>{
 						tab.removeFromParent();
-						dicomView.imageView.removeFromParent();
+						dicomView.imageView.reapplyStyle();
+						tabbedLayout.reapplyStyle();
 					});
 				});
 			});

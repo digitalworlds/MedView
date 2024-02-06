@@ -23,6 +23,10 @@ var DICOMView=function(){
 	    };
 }
 
+DICOMView.prototype.clear=function(){
+	this.imageView.img_div.style.backgroundImage="";
+}
+
 DICOMView.prototype.setDICOMFile=function(dicomFile){
 	var images=dicomFile.getImages();
 	if(images.length>1)

@@ -66,7 +66,6 @@ var main=function(args){
 	});
 
 	dicomLayout.getFirstContainer().append(leftPanel);
-	//var tabbedLayout=new TabbedLayout();
 	var tabbedLayout=dicomLayout.getSecondContainer().append(new TabbedLayout());
 
 	let fileButton=menulayout.getMenuBar().append(new MenuItem('File')).getSubMenu();

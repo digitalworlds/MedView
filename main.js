@@ -9,6 +9,7 @@ preload("DICOMImage.js");
 preload("dicomParser.min.js");
 preload("DICOMView.js");
 preload("Icons.js");
+preload("ImportDICOM.js");
 preload(libs['FileSelector','TabbedLayout']);
 
 var main=function(args){
@@ -39,25 +40,7 @@ var main=function(args){
 		fileSelector.setMultiple(false);
 		fileSelector.show();
 		fileSelector.whenSelected().then((fileSelector,e)=>{
-			fileSelector.createIndex(e).then(()=>{
-				new DICOMFile().open(fileSelector.files[0]).then((df) => {
-					var dicomView=new DICOMView();
-					dicomView.setDICOMFile(df);//set this dicom file to the viewer
-					var tab = tabbedLayout.newTab(fileSelector.files[0].name, dicomView);
-					tab.whenClicked().then(()=>{
-						dicomView.imageView.reapplyStyle();
-					});
-
-					let closeTabButton=new Button("").setIcon(new GUIIcon(ICONS_DICT["closeTabIcon"]));
-
-					tab.append(closeTabButton);
-
-					closeTabButton.whenClicked().then(()=>{
-						tab.removeFromParent();
-						dicomView.imageView.removeFromParent();
-					});
-				});
-			});
+			importDICOM(fileSelector, e, tabbedLayout);
 		});
 	});
 	toolbarLayout.append(importDICOMButton);
@@ -83,8 +66,8 @@ var main=function(args){
 	});
 
 	dicomLayout.getFirstContainer().append(leftPanel);
-	var tabbedLayout=new TabbedLayout();
-	dicomLayout.getSecondContainer().append(tabbedLayout);
+	//var tabbedLayout=new TabbedLayout();
+	var tabbedLayout=dicomLayout.getSecondContainer().append(new TabbedLayout());
 
 	let fileButton=menulayout.getMenuBar().append(new MenuItem('File')).getSubMenu();
 	let openMenu=fileButton.append(new MenuItem("Open")).getSubMenu();
@@ -104,26 +87,7 @@ var main=function(args){
 		fileSelector.setMultiple(false);
 		fileSelector.show();
 		fileSelector.whenSelected().then((fileSelector,e)=>{
-			fileSelector.createIndex(e).then(()=>{
-				new DICOMFile().open(fileSelector.files[0]).then((df) => {
-					var dicomView=new DICOMView();
-					dicomView.setDICOMFile(df);//set this dicom file to the viewer
-					var tab = tabbedLayout.newTab(fileSelector.files[0].name, dicomView);
-					tab.whenClicked().then(()=>{
-						dicomView.imageView.reapplyStyle();
-					});
-
-					let closeTabButton=new Button("").setIcon(new GUIIcon(ICONS_DICT["closeTabIcon"]));
-
-					tab.append(closeTabButton);
-
-					closeTabButton.whenClicked().then(()=>{
-						tab.removeFromParent();
-						dicomView.imageView.reapplyStyle();
-						tabbedLayout.reapplyStyle();
-					});
-				});
-			});
+			importDICOM(fileSelector, e, tabbedLayout);
 		});
 	});
 

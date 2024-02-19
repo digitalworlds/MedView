@@ -1,104 +1,150 @@
 preload(libs['GUI']).before(function(args){
-		//this is how you can optionally run scripts before loading your libraries.
-		args.app.showLoading();//Here we show the loading animation.
+		args.app.showLoading();
 	});
 
-preload("some_class.js");
-preload("app:9mkazv7tifp94mda@research.dwi.ufl.edu/op.n");//SlidingTabbedLayout class
-
+preload("DICOMDataset.js");
+preload("DICOMDeidentify.js");
+preload("DICOMFile.js");
+preload("DICOMImage.js");
+preload("dicomParser.min.js");
+preload("DICOMView.js");
+preload("Icons.js");
+preload("app:9mkazv7tifp94mda@research.dwi.ufl.edu/op.n");//SlidingTabbedLayout and TabbedLayout classes
+preload("app:2lqjuzir2rve70ac@research.dwi.ufl.edu/op.n");//FileSelector
 var main=function(args){
-	
-	let a=new A(10);
-	console.log(a.getNumber());
+	args.app.clearContents();
 
+	var wind=args.app.getWindow();
 
-	args.app.clearContents();//clears the loading animation
-
-	var wind=args.app.getWindow();//gets the window object, which has many parameters, methods, and listeners
-	//for example:
-	wind.whenResized().then((wind)=>{
-		//if(area) area.innerHTML="Window resized!";
-	})
-
-
-
-
-	//We create a GUI menu bar with one menu item:
 	var menulayout=new MenuLayout();
-	let file_menu=menulayout.getMenuBar().append(new MenuItem('File')).getSubMenu();
-	
-	file_menu.append(new MenuItem("Open")).whenClicked().then((item)=>{
-		item.collapseMenu();
 
-		var fs=new FileSelector();
-		fs.setDirectory(true);
-		fs.setMultiple(true);
-		fs.show();
-		fs.whenSelected().then((fileSelector,e)=>{
-			console.log(fileSelector.files);
-			fs.createIndex(e).then((index)=>{
-				console.log(index);
-			});
-		});
+	let toolbarSplit=new SplitLayout({orientation:'vertical',sticky:'first',editable:false});
+	toolbarSplit.setStickySize('auto','hidden');
+	menulayout.getContainer().append(toolbarSplit);
 
-		//area.innerHTML="I clicked Help!";
-	});
+	let toolbarLayout=new HorizontalLayout();
+	toolbarSplit.getFirstContainer().append(toolbarLayout);
 
-	let menu2=menulayout.getMenuBar().append(new MenuItem('Menu 2')).getSubMenu();
-	
-	menu2.append(new MenuItem("Item 1")).whenClicked().then((item)=>{
-		item.collapseMenu();
-		//area.innerHTML="I clicked Help!";
-	});
-
-	let menu3=menulayout.getMenuBar().append(new MenuItem('Menu 3')).getSubMenu();
-	
-	menu3.append(new MenuItem("Item 1")).whenClicked().then((item)=>{
-		item.collapseMenu();
-		//area.innerHTML="I clicked Help!";
-	});
-
-	//You can append GUI elements to the window like this:
-	wind.getContent().append(menulayout);
-
-	
-
-	let toolbar_split=new SplitLayout({orientation:'vertical',sticky:'first',editable:false});
-	toolbar_split.setStickySize('auto','hidden');
-	menulayout.getContainer().append(toolbar_split);
-
-
-	let toolbar_layout=new HorizontalLayout();
-	toolbar_split.getFirstContainer().append(toolbar_layout);
-
-
-	var an_icon=new GUIIcon('https://research.dwi.ufl.edu/op.n/img/logo.png');
-
-	let toolbar_style={
+	let toolbarStyle={
 		applyStyle:function(button){
 			button.div.style.width="auto";
 		}
 	}
 
-	toolbar_layout.append(new Button("")).setIcon(an_icon).appendCustomStyle(toolbar_style);
-	toolbar_layout.append(new Button("")).setIcon(an_icon).appendCustomStyle(toolbar_style);
-	toolbar_layout.append(new Button("")).setIcon(an_icon).appendCustomStyle(toolbar_style);
-	toolbar_layout.append(new Button("")).setIcon(an_icon).appendCustomStyle(toolbar_style);
-	toolbar_layout.append(new Button("")).setIcon(an_icon).appendCustomStyle(toolbar_style);
-	toolbar_layout.append(new Button("")).setIcon(an_icon).appendCustomStyle(toolbar_style);
+	let importDICOMButton=new Button("").setIcon(new GUIIcon(ICONS_DICT["importDICOMIcon"])).appendCustomStyle(toolbarStyle);
+	importDICOMButton.setToolTipText("Import DICOM");
+	importDICOMButton.whenClicked().then(()=>{
+		var fileSelector=new FileSelector();
+		fileSelector.setDirectory(true);
+		fileSelector.setMultiple(true);
+		fileSelector.show();
+		fileSelector.whenSelected().then((fileSelector,e)=>{
+			fileSelector.createIndex(e).then(()=>{
+				new DICOMFile().open(fileSelector.files[0]).then((df) => {
+					var dicomView=new DICOMView();
+					dicomView.setDICOMFile(df);//set this dicom file to the viewer
+					tabbedLayout.newTab(fileSelector.files[0].name, dicomView);
+				});
+			});
+		});
+	});
+	toolbarLayout.append(importDICOMButton);
 
+	let importCDButton=new Button("").setIcon(new GUIIcon(ICONS_DICT["importCDIcon"])).appendCustomStyle(toolbarStyle);
+	importCDButton.setToolTipText("Import DICOM CD");
+	toolbarLayout.append(importCDButton);
 
-	/*let left_split=new SplitLayout({orientation:'horizontal',sticky:'first'});
-	left_split.setStickySize('auto','hidden');
-	toolbar_split.getSecondContainer().append(left_split);*/
+	let exportDICOMButton=new Button("").setIcon(new GUIIcon(ICONS_DICT["exportDICOMIcon"])).appendCustomStyle(toolbarStyle);
+	exportDICOMButton.setToolTipText("Export DICOM");
+	toolbarLayout.append(exportDICOMButton);
 
-	
+	let dicomLayout=new SplitLayout({orientation:'horizontal',sticky:'second',editable:false,splitPosition:'0.25'});
+	toolbarSplit.getSecondContainer().append(dicomLayout);
 
-	let left_panel=new SlidingTabbedLayout({side:'left'});
-	left_panel.newTab('',new VerticalLayout()).setIcon(an_icon);
-	left_panel.newTab('',new VerticalLayout()).setIcon(an_icon);
-	left_panel.newTab('',new VerticalLayout()).setIcon(an_icon);
+	let leftPanel=new SlidingTabbedLayout({side:'left'});
+	let imageExplorer=leftPanel.newTab('',new VerticalLayout()).setIcon(new GUIIcon(ICONS_DICT["imageExplorerIcon"]));
+	imageExplorer.setToolTipText("Image Explorer");
+	var tabExtended=false;
+	imageExplorer.whenClicked().then(()=>{
+		if(!tabExtended)
+			dicomLayout.setPosition('0.4');
+		else
+			dicomLayout.setPosition('0.25');
 
-	toolbar_split.getSecondContainer().append(left_panel);
+		tabExtended=!tabExtended;
+	});
+
+	dicomLayout.getFirstContainer().append(leftPanel);
+	var tabbedLayout=new TabbedLayout();
+	dicomLayout.getSecondContainer().append(tabbedLayout);
+
+	let fileButton=menulayout.getMenuBar().append(new MenuItem('File')).getSubMenu();
+	let openMenu=fileButton.append(new MenuItem("Open")).getSubMenu();
+	openMenu.append(new MenuItem("DICOM")).setIcon(new GUIIcon(ICONS_DICT["importDICOMIcon"])).whenClicked().then((item)=>{
+		item.collapseMenu();
+	});
+	openMenu.append(new MenuItem("Image")).setIcon(new GUIIcon(ICONS_DICT["importImageIcon"])).whenClicked().then((item)=>{
+		item.collapseMenu();
+	});
+
+	let importMenu=fileButton.append(new MenuItem("Import")).getSubMenu();
+	importMenu.append(new MenuItem("DICOM")).setIcon(new GUIIcon(ICONS_DICT["importDICOMIcon"])).whenClicked().then((item)=>{
+		item.collapseMenu();
+
+		var fileSelector=new FileSelector();
+		fileSelector.setDirectory(true);
+		fileSelector.setMultiple(true);
+		fileSelector.show();
+		fileSelector.whenSelected().then((fileSelector,e)=>{
+			fileSelector.createIndex(e).then(()=>{
+				new DICOMFile().open(fileSelector.files[ 0]).then((df) => {
+					var dicomView=new DICOMView();
+					dicomView.setDICOMFile(df);//set this dicom file to the viewer
+					tabbedLayout.newTab(fileSelector.files[0].name, dicomView);
+				});
+			});
+		});
+	});
+	importMenu.append(new MenuItem("DICOM CD")).setIcon(new GUIIcon(ICONS_DICT["importDICOMCDIcon"])).whenClicked().then((item)=>{
+		item.collapseMenu();
+	});
+
+	let exportMenu=fileButton.append(new MenuItem("Export")).getSubMenu();
+	exportMenu.append(new MenuItem("DICOM")).setIcon(new GUIIcon(ICONS_DICT["exportDICOMIcon"])).whenClicked().then((item)=>{
+		item.collapseMenu();
+	});
+
+	fileButton.append(new MenuItem("Print")).whenClicked().then((item)=>{
+		item.collapseMenu();
+	});
+	fileButton.append(new MenuItem("Preferences")).whenClicked().then((item)=>{
+		item.collapseMenu();
+	});
+	fileButton.append(new MenuItem("Exit")).whenClicked().then((item)=>{
+		item.collapseMenu();
+	});
+
+	let viewButton=menulayout.getMenuBar().append(new MenuItem('View')).getSubMenu();
+
+	viewButton.append(new MenuItem("Toolbars")).whenClicked().then((item)=>{
+		item.collapseMenu();
+	});
+	viewButton.append(new MenuItem("Tools")).whenClicked().then((item)=>{
+		item.collapseMenu();
+	});
+	viewButton.append(new MenuItem("Explorer")).whenClicked().then((item)=>{
+		item.collapseMenu();
+	});
+
+	let helpButton=menulayout.getMenuBar().append(new MenuItem('Help')).getSubMenu();
+
+	helpButton.append(new MenuItem("Keyboard Shortcuts")).whenClicked().then((item)=>{
+		item.collapseMenu();
+	});
+	helpButton.append(new MenuItem("Online Help")).whenClicked().then((item)=>{
+		item.collapseMenu();
+	});
+
+	wind.getContent().append(menulayout);
 
 }

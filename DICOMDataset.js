@@ -1,4 +1,4 @@
-preload('utils/DICOMFile.js');
+preload('DICOMFile.js');
 
 var DICOMDataset=function(){
 	

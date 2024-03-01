@@ -31,11 +31,16 @@ function replaceString(dataSet, tag, new_value,options){
 	}
 }
 
+function getString(dataSet,tag){
+	if(dataSet.elements[tag].length>0)return dataSet.string(tag);
+	return "";
+}
+
 const VR_INDEX={
 	'AE':{
 			name:'Application Entry',
 			read:function(dataSet, tag){
-				return dataSet.string(tag);
+				return getString(dataSet,tag);
 			},
 			replace:function(dataSet,tag,new_value){
 				replaceString(dataSet,tag,new_value);
@@ -72,7 +77,7 @@ const VR_INDEX={
 	'CS':{
 			name:'Code String',
 			read:function(dataSet, tag){
-				return dataSet.string(tag);
+				return getString(dataSet,tag);
 			},
 			replace:function(dataSet,tag,new_value){
 				replaceString(dataSet,tag,new_value);
@@ -112,7 +117,7 @@ const VR_INDEX={
 	'DT':{
 			name:'Date Time',
 			read:function(dataSet, tag){
-				return dataSet.string(tag);
+				return getString(dataSet,tag);
 			}
 		},
 		
@@ -144,7 +149,7 @@ const VR_INDEX={
 	'LO':{
 			name:'Long String',
 			read:function(dataSet, tag){
-				return dataSet.string(tag);
+				return getString(dataSet,tag);
 			},
 			replace:function(dataSet,tag,new_value){
 				replaceString(dataSet,tag,new_value);
@@ -155,7 +160,8 @@ const VR_INDEX={
 	'LT':{
 			name:'Long Text',
 			read:function(dataSet, tag){
-				return dataSet.string(tag);
+				if(dataSet.element)
+				return getString(dataSet,tag);
 			},
 			replace:function(dataSet,tag,new_value){
 				replaceString(dataSet,tag,new_value);
@@ -171,7 +177,7 @@ const VR_INDEX={
 	'PN':{
 			name:'Person Name',
 			read:function(dataSet, tag){
-				return dataSet.string(tag);
+				return getString(dataSet,tag);
 			},
 			replace:function(dataSet,tag,new_value){
 				replaceString(dataSet,tag,new_value);
@@ -182,7 +188,7 @@ const VR_INDEX={
 	'SH':{
 			name:'Short String',
 			read:function(dataSet, tag){
-				return dataSet.string(tag);
+				return getString(dataSet,tag);
 			},
 			replace:function(dataSet,tag,new_value){
 				replaceString(dataSet,tag,new_value);
@@ -209,7 +215,7 @@ const VR_INDEX={
 	'ST':{
 			name:'Short Text',
 			read:function(dataSet, tag){
-				return dataSet.string(tag);
+				return getString(dataSet,tag);
 			},
 			replace:function(dataSet,tag,new_value){
 				replaceString(dataSet,tag,new_value);
@@ -240,7 +246,7 @@ const VR_INDEX={
 	'UI':{
 			name:'Unique Identifier (UID)',
 			read:function(dataSet, tag){
-				return dataSet.string(tag);
+				return getString(dataSet,tag);
 			},
 			replace:function(dataSet,tag,new_value){
 				replaceString(dataSet,tag,new_value,{left:true,character:'0'});
@@ -264,10 +270,17 @@ const VR_INDEX={
 			}
 		},
 	
+	'US|SS':{
+			name:'Unsigned Short',
+			read:function(dataSet, tag){
+				return dataSet.uint16(tag);
+			}
+		},
+	
 	'UT':{
 			name:'Unlimited Text',
 			read:function(dataSet, tag){
-				return dataSet.string(tag);
+				return getString(dataSet,tag);
 			},
 			replace:function(dataSet,tag,new_value){
 				replaceString(dataSet,tag,new_value);
@@ -382,7 +395,7 @@ DICOMFile.prototype.getValue=function(tag){
 		var tindx='x'+t.group+t.element;
 		var element=this.dataSet.elements[tindx];
 		if(element){
-			var vr=VR_INDEX[element.vr];
+			var vr=VR_INDEX[this.getVR(tag)];
 			if(vr){
 				var f=vr.read;
 				if(f){
@@ -458,6 +471,17 @@ DICOMFile.prototype.deidentify=function(){
 	}
 }
 
+DICOMFile.prototype.toJSON=function(){
+	if(this.dataSet){
+		for(var i in this.dataSet.elements){
+			var t=new DICOMTag(i);
+			var vr=this.getVRDescription(this.getVR(i));
+			//console.log(this.dataSet.elements[i])
+			//console.log(t.toString()+':'+this.getName(i)+':'+vr+':'+this.getValue(i));
+		}
+	}
+}
+
 DICOMFile.prototype.open=function(input){
 	var p=new opn.Promise(this);
 	
@@ -480,6 +504,7 @@ DICOMFile.prototype.open=function(input){
 	            var byteArray = new Uint8Array(arrayBuffer);
 	            try{
 	            	this.dataSet = dicomParser.parseDicom(byteArray);
+					this.toJSON();
 		        }catch(e){
 	            	p.callOtherwise({event:e});
 	            	return;
@@ -558,25 +583,25 @@ DICOMFile.prototype.getTag=function(tag){
 	return new DICOMTag(tag);
 }
 
+//Returns the Value Representation (VR) of the tag, which is basically the data type of this DICOM field
 DICOMFile.prototype.getVR=function(tag){
 	var t=new DICOMTag(tag);
 	
 	if(this.dataSet){
 		var tindx='x'+t.group+t.element;
 		var element=this.dataSet.elements[tindx];
-		if(element){
-			return element.vr;
-		}else{
-			return;
-		}
+		if(element && element.vr)return element.vr;
 	}
-	else{
-		var d=TAG_DICT[t.toString()];
-		if(d){
-			return d.vr;
-		}
-		else return;
-	}	
+
+
+	var d=TAG_DICT[t.toString()];
+	if(d){
+		return d.vr;
+	}
+	else {
+		//console.log(t.toString());
+		return;	
+	}
 }
 
 DICOMFile.prototype.getVRDescription=function(vr){

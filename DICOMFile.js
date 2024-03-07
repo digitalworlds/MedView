@@ -559,12 +559,13 @@ DICOMFile.prototype.getImages=function(){
 			return this.images;
 	}else{
 		
-		var blob = new Blob([this.dataSet.byteArray]);
+		var blob = new Blob([{raw:this.dataSet.byteArray.subarray(element.dataOffset,element.dataOffset+element.length)}]);
 		var url = URL.createObjectURL(blob); 
 		url = "wadouri:" + url;
-		var dm = cornerstone.loadAndCacheImage(url);
+		console.log(url);
+		//var dm = cornerstone.loadAndCacheImage(url);
 		//dm.load({raw:this.dataSet.byteArray.subarray(element.dataOffset,element.dataOffset+element.length)});
-		this.images.push(cornerstone.loadAndCacheImage(imageId));
+		this.images.push(cornerstone.loadAndCacheImage(url));
 
 		//console.log(image_array)
 		return this.images;

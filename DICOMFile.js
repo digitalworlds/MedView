@@ -1,3 +1,4 @@
+preload('cornerstone.min.js');
 preload('dicomParser.min.js');
 preload('DICOMDeidentify.js');
 preload('DICOMImage.js');
@@ -558,10 +559,11 @@ DICOMFile.prototype.getImages=function(){
 			return this.images;
 	}else{
 		
-		var dm = new DICOMImage(this);
-		dm.load({raw:this.dataSet.byteArray.subarray(element.dataOffset,element.dataOffset+element.length)});
-
-		this.images.push(dm);
+		var blob = new Blob([this.dataSet.byteArray]);
+		const url = "wadouri" + URL.createObjectURL(blob);
+		var dm = cornerstone.loadAndCacheImage(url);
+		//dm.load({raw:this.dataSet.byteArray.subarray(element.dataOffset,element.dataOffset+element.length)});
+		this.images.push(cornerstone.loadAndCacheImage(imageId));
 
 		//console.log(image_array)
 		return this.images;

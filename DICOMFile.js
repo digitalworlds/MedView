@@ -203,7 +203,20 @@ const VR_INDEX={
 			}
 		},
 		
-	'SQ':{name:'Sequence of Items'},
+	'SQ':{
+			name:'Sequence of Items',
+			read:function(dataSet,tag){
+				try{
+					console.log(dataSet);
+					let a={};
+				console.log(dicomParser.readSequenceItemsImplicit(dataSet,dataSet.elements[tag],a));
+				console.log(a);
+				console.log(dataSet.elements[tag]);
+				}
+				catch(e){
+					console.log(e);
+				}
+			}},
 	
 	'SS':{
 			name:'Signed Short',
@@ -472,19 +485,20 @@ DICOMFile.prototype.deidentify=function(){
 }
 
 DICOMFile.prototype.toJSON=function(){
+	let json={};
 	if(this.dataSet){
 		for(var i in this.dataSet.elements){
 			var t=new DICOMTag(i);
 			var vr=this.getVRDescription(this.getVR(i));
-			//console.log(this.dataSet.elements[i])
-			//console.log(t.toString()+':'+this.getName(i)+':'+vr+':'+this.getValue(i));
+			json[t.toString()]={name:this.getName(i),type:this.getVR(i),value:this.getValue(i)};
 		}
 	}
+	return json;
 }
 
 DICOMFile.prototype.open=function(input){
 	var p=new opn.Promise(this);
-	
+	console.log(dicomParser);
 	if(input instanceof Uint8Array){
 		
 		try{
@@ -504,7 +518,7 @@ DICOMFile.prototype.open=function(input){
 	            var byteArray = new Uint8Array(arrayBuffer);
 	            try{
 	            	this.dataSet = dicomParser.parseDicom(byteArray);
-					this.toJSON();
+					console.log(this.toJSON());
 		        }catch(e){
 	            	p.callOtherwise({event:e});
 	            	return;

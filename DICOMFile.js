@@ -560,7 +560,8 @@ DICOMFile.prototype.getImages=function(){
 	}else{
 		
 		var blob = new Blob([this.dataSet.byteArray]);
-		const url = "wadouri" + URL.createObjectURL(blob);
+		var url = URL.createObjectURL(blob); 
+		url = "wadouri:" + url;
 		var dm = cornerstone.loadAndCacheImage(url);
 		//dm.load({raw:this.dataSet.byteArray.subarray(element.dataOffset,element.dataOffset+element.length)});
 		this.images.push(cornerstone.loadAndCacheImage(imageId));

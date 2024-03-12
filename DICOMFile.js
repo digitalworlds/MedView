@@ -1,5 +1,6 @@
 preload('cornerstone.min.js');
 preload('dicomParser.min.js');
+preload('cornerstoneWADOImageLoader.bundle.min.js');
 preload('DICOMDeidentify.js');
 preload('DICOMImage.js');
 

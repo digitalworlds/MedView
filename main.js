@@ -2,6 +2,7 @@ preload(libs['GUI']).before(function(args){
 		args.app.showLoading();
 	});
 
+preload("cornerstoneWADOImageLoader.bundle.min.js");
 preload("DICOMDataset.js");
 preload("DICOMDeidentify.js");
 preload("DICOMFile.js");

@@ -1,6 +1,6 @@
 preload('cornerstone.min.js');
-preload('dicomParser.min.js');
 preload('cornerstoneWADOImageLoader.bundle.min.js');
+preload('dicomParser.min.js');
 preload('DICOMDeidentify.js');
 preload('DICOMImage.js');
 
@@ -566,7 +566,7 @@ DICOMFile.prototype.getImages=function(){
 		console.log(url);
 		//var dm = cornerstone.loadAndCacheImage(url);
 		//dm.load({raw:this.dataSet.byteArray.subarray(element.dataOffset,element.dataOffset+element.length)});
-		this.images.push(cornerstone.loadAndCacheImage(url));
+		this.images.push(cornerstone.loadImage(url));
 
 		//console.log(image_array)
 		return this.images;

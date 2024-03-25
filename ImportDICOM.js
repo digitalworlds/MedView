@@ -33,5 +33,5 @@ var importDICOM=function(fileSelector, e, tabbedLayout){
 }
 
 var main=function(){
-    exportData({importDICOM});
+    exportData({importDICOM:importDICOM});
 }

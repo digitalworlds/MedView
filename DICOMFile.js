@@ -1,3 +1,5 @@
+preload('cornerstone.min.js');
+preload('cornerstoneWADOImageLoader.bundle.min.js');
 preload('dicomParser.min.js');
 preload('DICOMDeidentify.js');
 preload('DICOMImage.js');
@@ -518,12 +520,32 @@ DICOMFile.prototype.open=function(input){
 	            var byteArray = new Uint8Array(arrayBuffer);
 	            try{
 	            	this.dataSet = dicomParser.parseDicom(byteArray);
-					console.log(this.toJSON());
+
+					cornerstoneWADOImageLoader.external.cornerstone = cornerstone;
+					cornerstoneWADOImageLoader.external.dicomParser = dicomParser;
+					cornerstoneWADOImageLoader.configure({
+						beforeSend: function(xhr) {
+							// Add custom headers here (e.g. auth tokens)
+							//xhr.setRequestHeader('APIKEY', 'my auth token');
+						},
+					});
+
+					var blob = new Blob([this.dataSet.byteArray]);
+					var url = URL.createObjectURL(blob); 
+					url = "wadouri:" + url;
+					console.log(url);
+					var dm = cornerstone.loadAndCacheImage(url).then((image)=>{
+						console.log(image);
+						this.dataSet.image=image;
+						p.callThen();
+					})
+
+					this.toJSON();
 		        }catch(e){
 	            	p.callOtherwise({event:e});
 	            	return;
 	            }
-				p.callThen();
+				
 		    };
 	        reader.readAsArrayBuffer(input);
 	}
@@ -541,7 +563,12 @@ DICOMFile.prototype.getImages=function(){
 
 	var u8arr;
 
-	if(element.encapsulatedPixelData){
+	var dm = new DICOMImage(this);
+	dm.load({image:this.dataSet.image});
+	this.images.push(dm);
+	return this.images;
+
+	if(false && element.encapsulatedPixelData){
 		var image_frames = element.fragments.length == undefined ? 0 : element.fragments.length;
 
 		// var frameIndex = 95;
@@ -570,15 +597,6 @@ DICOMFile.prototype.getImages=function(){
 			}
 			//console.log(image_array);
 			return this.images;
-	}else{
-		
-		var dm = new DICOMImage(this);
-		dm.load({raw:this.dataSet.byteArray.subarray(element.dataOffset,element.dataOffset+element.length)});
-
-		this.images.push(dm);
-
-		//console.log(image_array)
-		return this.images;
 	}
 }
 

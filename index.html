@@ -12,19 +12,8 @@
         @-ms-viewport { user-zoom: fixed ; min-zoom: 100% ; }                   @viewport { user-zoom: fixed ; min-zoom: 100% ; }
 
 	</style>
+	<script type="text/javascript" src="https://research.dwi.ufl.edu/op.n/js/opn.js"></script>
 
-	<script type="text/javascript" src="cornerstoneWADOImageLoader.bundle.min.js">
-		cornerstoneWADOImageLoader.external.cornerstone = cornerstone;
-
-		var config = {
-			maxWebWorkers: navigator.hardwareConcurrency || 1,
-			startWebWorkersOnDemand: true,
-		};
-		cornerstoneWADOImageLoader.webWorkerManager.initialize(config);
-		cornerstone.registerImageLoader('http', cornerstoneWebImageLoader.loadImage);
-		cornerstone.registerImageLoader('https', cornerstoneWebImageLoader.loadImage);
-	</script>
-	<script type="text/javascript" src="https://digitalworlds.github.io/op.n/js/opn.js"></script>
 	<script type="text/javascript">
 
 		var libs = {

@@ -205,7 +205,20 @@ const VR_INDEX={
 			}
 		},
 		
-	'SQ':{name:'Sequence of Items'},
+	'SQ':{
+			name:'Sequence of Items',
+			read:function(dataSet,tag){
+				try{
+					console.log(dataSet);
+					let a={};
+				console.log(dicomParser.readSequenceItemsImplicit(dataSet,dataSet.elements[tag],a));
+				console.log(a);
+				console.log(dataSet.elements[tag]);
+				}
+				catch(e){
+					console.log(e);
+				}
+			}},
 	
 	'SS':{
 			name:'Signed Short',
@@ -271,7 +284,7 @@ const VR_INDEX={
 				return dataSet.uint16(tag);
 			}
 		},
-	
+
 	'US|SS':{
 			name:'Unsigned Short',
 			read:function(dataSet, tag){
@@ -474,19 +487,20 @@ DICOMFile.prototype.deidentify=function(){
 }
 
 DICOMFile.prototype.toJSON=function(){
+	let json={};
 	if(this.dataSet){
 		for(var i in this.dataSet.elements){
 			var t=new DICOMTag(i);
 			var vr=this.getVRDescription(this.getVR(i));
-			//console.log(this.dataSet.elements[i])
-			//console.log(t.toString()+':'+this.getName(i)+':'+vr+':'+this.getValue(i));
+			json[t.toString()]={name:this.getName(i),type:this.getVR(i),value:this.getValue(i)};
 		}
 	}
+	return json;
 }
 
 DICOMFile.prototype.open=function(input){
 	var p=new opn.Promise(this);
-	
+	console.log(dicomParser);
 	if(input instanceof Uint8Array){
 		
 		try{
@@ -506,12 +520,32 @@ DICOMFile.prototype.open=function(input){
 	            var byteArray = new Uint8Array(arrayBuffer);
 	            try{
 	            	this.dataSet = dicomParser.parseDicom(byteArray);
+
+					cornerstoneWADOImageLoader.external.cornerstone = cornerstone;
+					cornerstoneWADOImageLoader.external.dicomParser = dicomParser;
+					cornerstoneWADOImageLoader.configure({
+						beforeSend: function(xhr) {
+							// Add custom headers here (e.g. auth tokens)
+							//xhr.setRequestHeader('APIKEY', 'my auth token');
+						},
+					});
+
+					var blob = new Blob([this.dataSet.byteArray]);
+					var url = URL.createObjectURL(blob); 
+					url = "wadouri:" + url;
+					console.log(url);
+					var dm = cornerstone.loadAndCacheImage(url).then((image)=>{
+						console.log(image);
+						this.dataSet.image=image;
+						p.callThen();
+					})
+
 					this.toJSON();
 		        }catch(e){
 	            	p.callOtherwise({event:e});
 	            	return;
 	            }
-				p.callThen();
+				
 		    };
 	        reader.readAsArrayBuffer(input);
 	}
@@ -529,7 +563,12 @@ DICOMFile.prototype.getImages=function(){
 
 	var u8arr;
 
-	if(element.encapsulatedPixelData){
+	var dm = new DICOMImage(this);
+	dm.load({image:this.dataSet.image});
+	this.images.push(dm);
+	return this.images;
+
+	if(false && element.encapsulatedPixelData){
 		var image_frames = element.fragments.length == undefined ? 0 : element.fragments.length;
 
 		// var frameIndex = 95;
@@ -558,18 +597,6 @@ DICOMFile.prototype.getImages=function(){
 			}
 			//console.log(image_array);
 			return this.images;
-	}else{
-		
-		var blob = new Blob([{raw:this.dataSet.byteArray.subarray(element.dataOffset,element.dataOffset+element.length)}]);
-		var url = URL.createObjectURL(blob); 
-		url = "wadouri:" + url;
-		console.log(url);
-		//var dm = cornerstone.loadAndCacheImage(url);
-		//dm.load({raw:this.dataSet.byteArray.subarray(element.dataOffset,element.dataOffset+element.length)});
-		this.images.push(cornerstone.loadImage(url));
-
-		//console.log(image_array)
-		return this.images;
 	}
 }
 
@@ -597,7 +624,7 @@ DICOMFile.prototype.getVR=function(tag){
 		var element=this.dataSet.elements[tindx];
 		if(element && element.vr)return element.vr;
 	}
-
+	
 
 	var d=TAG_DICT[t.toString()];
 	if(d){

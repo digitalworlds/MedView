@@ -37,8 +37,8 @@ var main=function(args){
 	importDICOMButton.setToolTipText("Import DICOM");
 	importDICOMButton.whenClicked().then(()=>{
 		var fileSelector=new FileSelector();
-		fileSelector.input.type='file';
-		fileSelector.setMultiple(false);
+		//fileSelector.setDirectory(true);
+		fileSelector.setMultiple(true);
 		fileSelector.show();
 		fileSelector.whenSelected().then((fileSelector,e)=>{
 			importDICOM(fileSelector, e, tabbedLayout);

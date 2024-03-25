@@ -104,7 +104,36 @@ DICOMImage.prototype.load=function(options){
 	
 	if(this.img)return this.whenLoaded();
 	
-	if(options&&options.imageFrame){
+
+    if(options&&options.image){
+    
+       
+        var width=options.image.imageFrame.columns;
+        var height=options.image.imageFrame.rows;
+        var data16=options.image.imageFrame.pixelData;
+        var sm=options.image.imageFrame.smallestPixelValue;
+        var len=(options.image.imageFrame.largestPixelValue-options.image.imageFrame.smallestPixelValue)/255;
+        
+//We convert the data to RGBA
+var RGBA=new Uint8ClampedArray(width*height*4);
+j=0;//slot in data16 array
+i=0;//slot in RGBA array
+for(var y=0;y<height;y++){
+    for(var x=0;x<width;x++){
+
+        v=(data16[j]-sm)/len;j++
+            
+        RGBA[i]=v;i++
+        RGBA[i]=v;i++
+        RGBA[i]=v;i++
+        RGBA[i]=255;i++
+    }
+}
+
+        return this.getPNGImagefromImageData(new ImageData(RGBA, width));
+		
+    }
+	else if(options&&options.imageFrame){
     
 		return this.getImageFromUint8Array(options.imageFrame);
 		

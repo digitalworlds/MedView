@@ -58,7 +58,7 @@
 				//var app=os.openApp({initapp:true,fullscreen:true,appID:"zu7w5oya7htyn87c@research.dwi.ufl.edu/op.n",input:"y2ktukiogoysian3"});
 				
 				var js=new URLSearchParams(window.location.search).get("app");
-				js="main.js";
+				if(js==null)js="main.js";
 				var w=os.newWindow({title:"MedView",icon:"https://research.dwi.ufl.edu/op.n/img/logo.png"});
 				var app = new opn.App();
 				app.setWindow(w);
